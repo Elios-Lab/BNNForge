@@ -1,0 +1,8 @@
+ipykernel
+tensorflow[and-cuda]==2.10
+larq
+matplotlib
+scikit-learn
+scipy
+seaborn
+tabulate
