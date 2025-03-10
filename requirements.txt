@@ -1,8 +1,9 @@
 ipykernel
-tensorflow[and-cuda]==2.10
+tensorflow[and-cuda]
 larq
 matplotlib
 scikit-learn
 scipy
 seaborn
 tabulate
+keras-tuner

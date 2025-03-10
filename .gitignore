@@ -174,3 +174,5 @@ cython_debug/
 delete.py
 # Dataset folders
 DatasetPDT/
+# Other folders
+bayesian_opt/
