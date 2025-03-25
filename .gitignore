@@ -172,6 +172,9 @@ cython_debug/
 
 # Dataset folders
 DatasetPDT/
+time-of-flight/
 # Other folders
 bayesian_opt/
 delete/
+
+*.tflite

@@ -1,6 +1,7 @@
 ipykernel
 tensorflow[and-cuda]==2.14.1
 larq
+larq-compute-engine
 matplotlib
 scikit-learn
 scipy
