@@ -23,7 +23,7 @@ conda activate bnn
 pip install -r requirements.txt
 ```
 
-### Deployment on Raspberry Pi
+### Deployment on Raspberry Pi (ARM64)
 
 #### Option 1: Building from Source
 
@@ -74,7 +74,7 @@ Benchmark parameters:
 ├── b-ToF.ipynb          # Time-of-Flight binary classification
 ├── b-z24.ipynb          # Z24 Bridge 15-class classification
 ├── requirements.txt     # Python dependencies
-└── README.md           # This file
+└── README.md            # This file
 ```
 
 ## Dependencies
