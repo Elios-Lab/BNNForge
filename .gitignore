@@ -173,6 +173,8 @@ cython_debug/
 # Dataset folders
 DatasetPDT/
 time-of-flight/
+speech_dataset/
+
 # Other folders
 bayesian_opt/
 delete/

@@ -1,4 +1,5 @@
 ipykernel
+ipywidgets
 tensorflow[and-cuda]==2.14.1; sys_platform == 'linux'
 tensorflow==2.14.1; sys_platform == 'darwin'
 tensorflow-metal; sys_platform == 'darwin'
