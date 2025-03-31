@@ -170,8 +170,17 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# zip files
+*.zip
+*.tar.gz
+
 # Dataset folders
 DatasetPDT/
+time-of-flight/
+VMMRdb10/
+AsphaltRegularity/
 # Other folders
 bayesian_opt/
 delete/
+
+*.tflite
