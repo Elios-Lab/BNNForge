@@ -177,6 +177,8 @@ cython_debug/
 # Dataset folders
 DatasetPDT/
 time-of-flight/
+speech_dataset/
+electronics-parts-dataset/
 VMMRdb10/
 AsphaltRegularity/
 # Other folders

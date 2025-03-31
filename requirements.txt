@@ -1,9 +1,16 @@
 ipykernel
-tensorflow[and-cuda]==2.14.1
+ipywidgets
+tensorflow[and-cuda]==2.14.1; sys_platform == 'linux'
+tensorflow==2.14.1; sys_platform == 'darwin'
+tensorflow-metal; sys_platform == 'darwin'
+dm-tree==1.0.8; sys_platform == 'darwin'
+tensorflow-datasets
 larq
+larq-compute-engine
 matplotlib
 scikit-learn
 scipy
 seaborn
 tabulate
 keras-tuner
+pydub
