@@ -184,5 +184,5 @@ AsphaltRegularity/
 # Other folders
 bayesian_opt/
 delete/
-
+google_dataset_v2/
 *.tflite

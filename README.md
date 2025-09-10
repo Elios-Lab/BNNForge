@@ -1,12 +1,21 @@
-# Binary Neural Networks for Embedded Systems
+# BNNForge
 
 ## Use Cases
 
 ### 1. Time-of-Flight (ToF) Sensor Classification
 Located in `b-ToF.ipynb`, this implementation processes 8x8 ToF sensor data for binary classification. The model is designed to efficiently process spatial data from ToF sensors while maintaining high accuracy with minimal computational overhead.
 
+### 4. Electronics Parts Classification
+Located in `b-EPD.ipynb`, this notebook performs multi-class image classification on 30x30 grayscale images from the Electronics-Parts-Dataset. The data are fetched within the notebook and cleaned before training binarized CNNs.
+
+### 3. Asphalt Pavement Condition Classification
+Located in `b-AR.ipynb`, this notebook uses the AsphaltRegularity dataset to classify road surface conditions (e.g., regular vs. deteriorated) from accelerometer-derived 1D signals. It employs binarized 1D CNN layers for efficient inference.
+
 ### 2. Z24 Bridge Vibration Analysis
-Located in `b-z24.ipynb`, this model analyzes vibration data from the Z24 Bridge dataset for structural health monitoring. It processes time-series data to detect and classify different structural conditions.
+Located in `b-z24.ipynb`, this notebook analyzes vibration data from the Z24 Bridge dataset for structural health monitoring. It processes time-series data to detect and classify different structural conditions.
+
+### 5. Speech Commands (V2) – 12-class
+Located in `b-SC.ipynb`, this notebook builds a 12-class keyword spotter on Google Speech Commands v0.02. It extracts MFCC features and trains a compact binarized 1D CNN for efficient on-device speech recognition.
 
 ## Setup Instructions
 
@@ -14,14 +23,16 @@ Located in `b-z24.ipynb`, this model analyzes vibration data from the Z24 Bridge
 
 1. Create and activate a new conda environment with Python 3.10:
 ```bash
-conda create -n bnn python=3.10
-conda activate bnn
+conda create -n bnnforge python=3.10
+conda activate bnnforge
 ```
 
 2. Install required packages:
 ```bash
 pip install -r requirements.txt
 ```
+
+3. Run cell by cell in the provided Jupyter notebooks to train and evaluate models.
 
 ### Deployment on Raspberry Pi (ARM64)
 
@@ -71,6 +82,9 @@ Benchmark parameters:
 
 ```
 .
+├── b-AR.ipynb          # Asphalt Pavement condition classification (1D signals)
+├── b-EPD.ipynb         # Electronics Parts image classification (30x30 grayscale)
+├── b-SC.ipynb          # Speech Commands v2, 12-class keyword spotting
 ├── b-ToF.ipynb          # Time-of-Flight binary classification
 ├── b-z24.ipynb          # Z24 Bridge 15-class classification
 ├── requirements.txt     # Python dependencies
@@ -88,13 +102,4 @@ Key dependencies include:
 
 ## Citing
 
-If you use this work in an academic context, please consider citing our paper:
-
-```
-@article{your_paper_reference,
-  title={Title of Your Paper},
-  author={Your Name},
-  journal={Journal Name},
-  year={Year of Publication}
-}
-```
+Soon available.
