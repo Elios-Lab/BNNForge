@@ -2,7 +2,7 @@
 
 BNNForge is the companion implementation for experiments on binarized neural
 networks (BNNs) for resource-constrained and embedded systems. The repository
-contains five end-to-end Jupyter workflows covering image, spatial-sensor,
+contains six end-to-end Jupyter workflows covering image, spatial-sensor,
 audio, and time-series classification.
 
 Each notebook follows the same experimental pipeline:
@@ -25,10 +25,28 @@ Each notebook follows the same experimental pipeline:
 | `b-SC.ipynb` | Keyword spotting | MFCC representation of one-second audio | 12 | [Speech Commands v0.02](http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz) |
 | `b-ToF.ipynb` | Time-of-Flight sensor classification | 8 x 8 distance map | 2 | Downloaded by the notebook |
 | `b-z24.ipynb` | Structural-condition classification | 1D bridge-vibration signal | 15 | [Z24 Bridge](https://bwk.kuleuven.be/bwm/z24) |
+| `b-TCL.ipynb` | Telecom credit scoring | 720 x 6 behavioral time series | 5 | Proprietary (Monty Mobile); synthetic data provided in `TCL_data/` |
 
 The Z24 data are not public and are therefore not downloaded automatically.
 Request access from the dataset owner and arrange the files under
 `DatasetPDT/<class>/avt/` as expected by `b-z24.ipynb`.
+
+The Telecom Credit Lending (TCL) data are proprietary to Monty Mobile and cannot
+be shared. The repository therefore provides a synthetic dataset with the same
+structure (132,130 users; recharge and lending histories converted into 720
+timesteps x 6 behavioral features; five credit score classes), on which
+`b-TCL.ipynb` runs the full pipeline. The synthetic data reproduce the
+processing pipeline, not the accuracy reported in the paper.
+
+| File | Columns |
+| --- | --- |
+| `TCL_data/charging.csv.gz` | `user_id`, `amount`, `date` |
+| `TCL_data/lending.csv.gz` | `user_id`, `amount`, `take_date`, `return_date` |
+| `TCL_data/labels.csv.gz` | `user_id`, `label` (0-4, ascending creditworthiness) |
+
+If the files are missing, the notebook regenerates them with the same seed. To
+use real data with the same schema, replace the three files and set
+`USE_SYNTHETIC = False`.
 
 ## Repository contents
 
@@ -39,13 +57,16 @@ Request access from the dataset owner and arrange the files under
 ├── b-SC.ipynb                 # Speech Commands experiment
 ├── b-ToF.ipynb                # Time-of-Flight experiment
 ├── b-z24.ipynb                # Z24 Bridge experiment
+├── b-TCL.ipynb                # Telecom Credit Lending experiment (synthetic data)
+├── TCL_data/                  # Synthetic TCL raw tables (.csv.gz)
 ├── explainability_analysis.py # Shared FP-versus-BNN SHAP utilities
 ├── requirements.txt           # Training and LCE dependencies
 └── README.md
 ```
 
-Datasets, trained models, tuner state, generated C code, and analysis outputs
-are intentionally excluded from version control. This keeps the repository
+Apart from the synthetic TCL data, datasets, trained models, tuner state,
+generated C code, and analysis outputs are intentionally excluded from version
+control. This keeps the repository
 small and avoids redistributing restricted data. Consequently, the repository
 contains the experiment definitions rather than pretrained weights or recorded
 notebook outputs.
@@ -92,6 +113,7 @@ models:
 | SC | `SC_model.tflite` |
 | ToF | `ToF_model.tflite` |
 | Z24 | `z24_model.tflite` |
+| TCL | `TCL_model.tflite` |
 
 These files are generated locally and ignored by Git.
 
@@ -186,6 +208,8 @@ count, and run count when comparing models.
 - TensorFlow is pinned to 2.14.1 in `requirements.txt`; record the resolved
   versions of Larq, Larq Compute Engine, and Keras Tuner for archival runs.
 - The Z24 experiment requires separately authorized access to the source data.
+- The TCL experiment runs on synthetic data; the original dataset is
+  proprietary. The TCL notebook does not include the SHAP analysis.
 
 ## Citation
 
