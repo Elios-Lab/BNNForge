@@ -1,105 +1,216 @@
 # BNNForge
 
-## Use Cases
+BNNForge is the companion implementation for experiments on binarized neural
+networks (BNNs) for resource-constrained and embedded systems. The repository
+contains six end-to-end Jupyter workflows covering image, spatial-sensor,
+audio, and time-series classification.
 
-### 1. Time-of-Flight (ToF) Sensor Classification
-Located in `b-ToF.ipynb`, this implementation processes 8x8 ToF sensor data for binary classification. The model is designed to efficiently process spatial data from ToF sensors while maintaining high accuracy with minimal computational overhead.
+Each notebook follows the same experimental pipeline:
 
-### 4. Electronics Parts Classification
-Located in `b-EPD.ipynb`, this notebook performs multi-class image classification on 30x30 grayscale images from the Electronics-Parts-Dataset. The data are fetched within the notebook and cleaned before training binarized CNNs.
+1. acquire and preprocess the dataset;
+2. create training, validation, and test splits;
+3. tune a compact BNN with Keras Tuner;
+4. train and evaluate it with accuracy, precision, recall, F1 score, and a
+   confusion matrix;
+5. export the trained model to TensorFlow Lite with Larq Compute Engine (LCE);
+6. generate SHAP explanations; and
+7. optionally convert the Keras model to C with CBin-NN.
 
-### 3. Asphalt Pavement Condition Classification
-Located in `b-AR.ipynb`, this notebook uses the AsphaltRegularity dataset to classify road surface conditions (e.g., regular vs. deteriorated) from accelerometer-derived 1D signals. It employs binarized 1D CNN layers for efficient inference.
+## Experiments
 
-### 2. Z24 Bridge Vibration Analysis
-Located in `b-z24.ipynb`, this notebook analyzes vibration data from the Z24 Bridge dataset for structural health monitoring. It processes time-series data to detect and classify different structural conditions.
+| Notebook | Task | Input | Classes | Dataset |
+| --- | --- | --- | ---: | --- |
+| `b-AR.ipynb` | Asphalt pavement condition classification | 1D accelerometer-derived signal | 2 | [AsphaltRegularity](https://www.timeseriesclassification.com/description.php?Dataset=AsphaltRegularity) |
+| `b-EPD.ipynb` | Electronic-parts classification | 30 x 30 grayscale image | Multiple | [Electronics-Parts-Dataset](https://github.com/praneelchand10/Electronics-Parts-Dataset) |
+| `b-SC.ipynb` | Keyword spotting | MFCC representation of one-second audio | 12 | [Speech Commands v0.02](http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz) |
+| `b-ToF.ipynb` | Time-of-Flight sensor classification | 8 x 8 distance map | 2 | Downloaded by the notebook |
+| `b-z24.ipynb` | Structural-condition classification | 1D bridge-vibration signal | 15 | [Z24 Bridge](https://bwk.kuleuven.be/bwm/z24) |
+| `b-TCL.ipynb` | Telecom credit scoring | 720 x 6 behavioral time series | 5 | Proprietary (Monty Mobile); synthetic data provided in `TCL_data/` |
 
-### 5. Speech Commands (V2) – 12-class
-Located in `b-SC.ipynb`, this notebook builds a 12-class keyword spotter on Google Speech Commands v0.02. It extracts MFCC features and trains a compact binarized 1D CNN for efficient on-device speech recognition.
+The Z24 data are not public and are therefore not downloaded automatically.
+Request access from the dataset owner and arrange the files under
+`DatasetPDT/<class>/avt/` as expected by `b-z24.ipynb`.
 
-## Setup Instructions
+The Telecom Credit Lending (TCL) data are proprietary to Monty Mobile and cannot
+be shared. The repository therefore provides a synthetic dataset with the same
+structure (132,130 users; recharge and lending histories converted into 720
+timesteps x 6 behavioral features; five credit score classes), on which
+`b-TCL.ipynb` runs the full pipeline. The synthetic data reproduce the
+processing pipeline, not the accuracy reported in the paper.
 
-### Development Environment Setup
+| File | Columns |
+| --- | --- |
+| `TCL_data/charging.csv.gz` | `user_id`, `amount`, `date` |
+| `TCL_data/lending.csv.gz` | `user_id`, `amount`, `take_date`, `return_date` |
+| `TCL_data/labels.csv.gz` | `user_id`, `label` (0-4, ascending creditworthiness) |
 
-1. Create and activate a new conda environment with Python 3.10:
+If the files are missing, the notebook regenerates them with the same seed. To
+use real data with the same schema, replace the three files and set
+`USE_SYNTHETIC = False`.
+
+## Repository contents
+
+```text
+.
+├── b-AR.ipynb                 # AsphaltRegularity experiment
+├── b-EPD.ipynb                # Electronic-parts experiment
+├── b-SC.ipynb                 # Speech Commands experiment
+├── b-ToF.ipynb                # Time-of-Flight experiment
+├── b-z24.ipynb                # Z24 Bridge experiment
+├── b-TCL.ipynb                # Telecom Credit Lending experiment (synthetic data)
+├── TCL_data/                  # Synthetic TCL raw tables (.csv.gz)
+├── explainability_analysis.py # Shared FP-versus-BNN SHAP utilities
+├── requirements.txt           # Training and LCE dependencies
+└── README.md
+```
+
+Apart from the synthetic TCL data, datasets, trained models, tuner state,
+generated C code, and analysis outputs are intentionally excluded from version
+control. This keeps the repository
+small and avoids redistributing restricted data. Consequently, the repository
+contains the experiment definitions rather than pretrained weights or recorded
+notebook outputs.
+
+## Environment setup
+
+Python 3.10 is recommended because the notebooks use TensorFlow 2.14.1.
+
 ```bash
 conda create -n bnnforge python=3.10
 conda activate bnnforge
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-2. Install required packages:
-```bash
-pip install -r requirements.txt
-```
-
-3. Run cell by cell in the provided Jupyter notebooks to train and evaluate models.
-
-### Deployment on Raspberry Pi (ARM64)
-
-#### Option 1: Building from Source
+The shared explainability module additionally imports SHAP, pandas, Joblib, and
+Pillow:
 
 ```bash
-# Clone the Larq Compute Engine repository
-git clone https://github.com/larq/compute-engine.git
-cd compute-engine
-
-# Initialize submodules
-git submodule update --init
-
-# Install dependencies
-sudo apt-get install cmake build-essential
-
-# Build the project
-cmake -S . -B build
-cmake --build build
+python -m pip install shap pandas joblib pillow
 ```
 
-#### Option 2: Using Release Version
+Start Jupyter from the repository root and run the selected notebook from top
+to bottom:
 
 ```bash
-# Download pre-built binary
-wget https://github.com/larq/compute-engine/releases/download/v0.16.0/lce_benchmark_model_aarch64 -o lce_benchmark_model
+jupyter lab
 ```
 
-### Benchmarking Models
+The first execution of the AR, EPD, SC, or ToF notebook requires network
+access to retrieve its dataset. Hyperparameter searches and model training can
+be time-consuming; the notebooks use early stopping and expose the relevant
+search and training parameters in their respective cells.
 
-To benchmark the deployed models on Raspberry Pi:
+## Outputs
 
-If you built from source, the binary will be in the `build` directory (`cd /home/username/compute-engine/build`). If you downloaded the release version, it should be in your current directory.
+The notebook export cells create the following LCE-compatible FlatBuffer
+models:
+
+| Experiment | Exported model |
+| --- | --- |
+| AR | `AR_model.tflite` |
+| EPD | `EPD_model.tflite` |
+| SC | `SC_model.tflite` |
+| ToF | `ToF_model.tflite` |
+| Z24 | `z24_model.tflite` |
+| TCL | `TCL_model.tflite` |
+
+These files are generated locally and ignored by Git.
+
+## Explainability analysis
+
+`explainability_analysis.py` compares full-precision (FP) and binarized TFLite
+models with SHAP. It supports segmented KernelSHAP for high-dimensional 1D and
+2D inputs and writes signed attribution plots to `explainability_output/`.
+
+The standalone script expects all five model pairs in `--model_dir`:
+
+```text
+AR_fp.tflite       AR_bnn.tflite
+EPD_fp.tflite      EPD_bnn.tflite
+SC_fp.tflite       SC_bnn.tflite
+ToF_fp.tflite      ToF_bnn.tflite
+z24_model.tflite   z24_bnn.tflite
+```
+
+It also loads all five datasets at startup, so the complete input tree must be
+available even when explaining one task through `run_multi`:
+
+```text
+inputs/
+├── AR/AR_test_X.npy
+├── AR/AR_test_y.npy
+├── EPD/EPD_test_data.npy
+├── EPD/EPD_test_label.npy
+├── SC/SC_test_X.npy
+├── SC/SC_test_y.npy
+├── ToF/Tof_sample.csv
+├── ToF/ToF_label.txt
+├── Z24/z24_data.pkl
+└── Z24/z24_label.pkl
+```
+
+Run the full FP-versus-BNN comparison with:
 
 ```bash
-chmod +x lce_benchmark_model
-./lce_benchmark_model --graph=/path/to/your/model.tflite --num_threads=1 --num_runs=100 --warmup_runs=5 --report_peak_memory_footprint=false
+python explainability_analysis.py \
+  --data_dir inputs \
+  --model_dir path/to/models \
+  --out_dir explainability_output \
+  --sample 0 \
+  --n_shap_bg 30
 ```
 
-Benchmark parameters:
-- `--num_threads`: Number of threads to use (1 for single-core performance)
-- `--num_runs`: Number of inference runs (100 for reliable metrics)
-- `--warmup_runs`: Number of initial runs to warm up the system (5 is typical)
-- `--report_peak_memory_footprint`: Set to true to enable memory footprint reporting (approximate)
+The explainability cells in the notebooks demonstrate how test samples are
+serialized and how `run_multi` is called for a selected task.
 
-## Project Structure
+## C code generation
 
+The final cells of every notebook provide an optional C export workflow based
+on [CBin-NN](https://github.com/Edge-Learning-Machine/CBin-NN). They:
+
+1. save the trained model as an HDF5 (`.h5`) file;
+2. clone CBin-NN if it is not already present;
+3. copy the model into `CBin-NN/Code Generation/`;
+4. update the converter's `model_name`; and
+5. execute `model_converter.py`.
+
+Run these cells only after training and consult the CBin-NN repository for its
+compiler, runtime, and target-specific requirements.
+
+## Raspberry Pi benchmarking
+
+The notebooks export models through `larq_compute_engine`, whose optimized
+operators target 64-bit ARM platforms including Raspberry Pi. Build the LCE
+benchmark tool by following the
+[official 64-bit ARM instructions](https://docs.larq.dev/compute-engine/end_to_end/#step-3-build-the-lce-benchmark-tool),
+then benchmark a generated model with:
+
+```bash
+./lce_benchmark_model \
+  --graph=/path/to/model.tflite \
+  --num_threads=1 \
+  --num_runs=100 \
+  --warmup_runs=5 \
+  --report_peak_memory_footprint=false
 ```
-.
-├── b-AR.ipynb          # Asphalt Pavement condition classification (1D signals)
-├── b-EPD.ipynb         # Electronics Parts image classification (30x30 grayscale)
-├── b-SC.ipynb          # Speech Commands v2, 12-class keyword spotting
-├── b-ToF.ipynb          # Time-of-Flight binary classification
-├── b-z24.ipynb          # Z24 Bridge 15-class classification
-├── requirements.txt     # Python dependencies
-└── README.md            # This file
-```
 
-## Dependencies
+Use the same board, operating-system image, CPU governor, thread count, warm-up
+count, and run count when comparing models.
 
-Key dependencies include:
-- TensorFlow 2.14.1
-- Larq
-- Larq Compute Engine
-- Keras-tuner
-- Other standard ML libraries (see requirements.txt)
+## Reproducibility notes
 
-## Citing
+- Dataset preparation, split logic, random seeds, model definition,
+  hyperparameter search space, training schedule, and evaluation are contained
+  in each notebook.
+- Notebook outputs are stripped when committed; rerun the notebooks to
+  reproduce tables, plots, and exported artifacts.
+- TensorFlow is pinned to 2.14.1 in `requirements.txt`; record the resolved
+  versions of Larq, Larq Compute Engine, and Keras Tuner for archival runs.
+- The Z24 experiment requires separately authorized access to the source data.
+- The TCL experiment runs on synthetic data; the original dataset is
+  proprietary. The TCL notebook does not include the SHAP analysis.
 
-Soon available.
+## Citation
+
+Citation information will be added when the associated paper is published.
